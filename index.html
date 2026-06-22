@@ -27,6 +27,14 @@
     --blue-text: #102A52;
     --amber: #92600A;
     --amber-light: #FEF3DC;
+    /* User-portal identity — deep indigo + warm gold, distinct from Admin's green */
+    --user-accent: #3B4A91;
+    --user-accent-dark: #283269;
+    --user-accent-light: #EBEDF8;
+    --user-accent-text: #232C5C;
+    --user-gold: #D4A437;
+    --user-gold-light: #FBF1DC;
+    --user-gold-text: #7A5A12;
     --radius: 10px;
     --radius-sm: 6px;
     --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 8px rgba(0,0,0,.04);
@@ -130,7 +138,7 @@
   }
   .topbar-logo .lm {
     width: 30px; height: 30px;
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent) 0%, #1B4332 100%);
     border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 15px;
@@ -140,6 +148,8 @@
     border-radius: 999px; background: var(--accent-light);
     color: var(--accent-text); border: 1px solid #B7DFC8;
   }
+  #s-user .topbar-logo .lm { background: linear-gradient(135deg, var(--user-accent) 0%, var(--user-accent-dark) 100%); }
+  #s-user .badge-role { background: var(--user-gold-light); color: var(--user-gold-text); border-color: #ECD498; }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
   .user-chip {
     display: flex; align-items: center; gap: 8px;
@@ -211,6 +221,7 @@
     text-transform: uppercase; letter-spacing: .06em;
     color: var(--text2); margin-bottom: 1rem;
   }
+  #s-user .card { border-top: 3px solid var(--user-accent); }
 
   /* ── Form elements ── */
   .field { margin-bottom: 1rem; }
@@ -288,6 +299,9 @@
   .btn-primary:hover { background: #245c42; }
   .btn-outline { background: var(--surface); color: var(--text); border-color: var(--border2); }
   .btn-outline:hover { background: var(--surface2); }
+  #s-user .btn-primary { background: var(--user-accent); }
+  #s-user .btn-primary:hover { background: var(--user-accent-dark); }
+  #s-user .btn-outline:hover { background: var(--user-accent-light); border-color: #C4CAE8; color: var(--user-accent-dark); }
   .btn-danger { background: var(--red-light); color: var(--red-text); border-color: #F1BCBA; }
   .btn-danger:hover { background: #FAD7D5; }
   .btn-sm { padding: 5px 11px; font-size: 13px; }
@@ -306,6 +320,8 @@
   }
   .stat-card .label { font-size: 12px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
   .stat-card .value { font-size: 28px; font-weight: 600; letter-spacing: -.5px; }
+  .stat-accent { border-top: 3px solid var(--stat-color); transition: transform .15s; }
+  .stat-accent:hover { transform: translateY(-2px); }
 
   /* ── Table-like rows ── */
   .list-row {
@@ -330,8 +346,8 @@
   .pdf-icon.file-xls  { background: var(--accent-light); border-color: #B7DFC8; color: var(--accent-text); }
   .pdf-icon.file-doc  { background: var(--blue-light);  border-color: #BDD5F5; color: var(--blue-text); }
   .pdf-icon.file-ppt  { background: var(--amber-light); border-color: #FCCF5D; color: var(--amber); }
-  .pdf-icon.file-img  { background: var(--surface2);    border-color: var(--border2); color: var(--text2); }
-  .pdf-icon.file-zip  { background: var(--surface2);    border-color: var(--border2); color: var(--text2); }
+  .pdf-icon.file-img  { background: #F3E8FB; border-color: #DDC2F0; color: #6B3FA0; }
+  .pdf-icon.file-zip  { background: #FBE8E0; border-color: #F0C5AE; color: #9A4A1E; }
   .pdf-icon.file-txt  { background: var(--surface2);    border-color: var(--border2); color: var(--text2); }
   .upload-filelist {
     margin-top: .5rem;
@@ -398,17 +414,27 @@
   #s-user .content { max-width: 800px; }
 
   .welcome-banner {
-    background: linear-gradient(135deg, var(--accent) 0%, #1B4332 100%);
+    background: linear-gradient(135deg, var(--user-accent) 0%, var(--user-accent-dark) 100%);
     color: #fff;
     border-radius: var(--radius);
     padding: 1.25rem 1.5rem;
     margin-bottom: 1.5rem;
     display: flex; align-items: center; gap: 14px;
     box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::after {
+    content: '';
+    position: absolute; top: -40%; right: -10%;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, var(--user-gold) 0%, transparent 70%);
+    opacity: .25;
+    pointer-events: none;
   }
   .welcome-banner .wtext h2 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
-  .welcome-banner .wtext p { font-size: 13px; opacity: .8; }
-  .welcome-banner .avatar { background: rgba(255,255,255,.25); color: #fff; }
+  .welcome-banner .wtext p { font-size: 13px; opacity: .85; }
+  .welcome-banner .avatar { background: var(--user-gold); color: var(--user-accent-dark); font-weight: 700; }
 
   .doc-card {
     background: var(--surface);
@@ -417,7 +443,7 @@
     box-shadow: var(--shadow);
     margin-bottom: .875rem;
     overflow: hidden;
-    transition: box-shadow .15s;
+    transition: box-shadow .15s, transform .15s;
   }
   .doc-card:hover { box-shadow: var(--shadow-md); }
   .doc-card-inner {
@@ -426,6 +452,9 @@
   }
   .doc-card-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
   .doc-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  #s-user .doc-card { border-left: 4px solid var(--user-gold); }
+  #s-user .doc-card:hover { transform: translateX(2px); border-left-color: var(--user-accent); }
 
   /* ── PDF Viewer ── */
   .viewer-bar {
@@ -549,7 +578,7 @@
 
       <div id="li-err" class="alert alert-err" style="display:none"></div>
 
-      <button class="btn btn-primary btn-full" onclick="doLogin()" id="login-btn">
+      <button class="btn btn-primary btn-full" onclick="if(typeof doLogin==='function'){doLogin()}else{alert('The page hasn\'t fully loaded yet (or your browser is showing a cached/old copy). Please do a hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac), then try again.')}" id="login-btn">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2H2.5A1.5 1.5 0 001 3.5v8A1.5 1.5 0 002.5 13H6M10 10.5l3-3-3-3M13 7.5H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Sign in
       </button>
@@ -618,21 +647,21 @@
 
       <!-- ── STATS ── -->
       <div class="stats-row">
-        <div class="stat-card">
+        <div class="stat-card stat-accent" style="--stat-color: var(--accent)">
           <div class="label">Total users</div>
-          <div class="value" id="stat-users">0</div>
+          <div class="value" id="stat-users" style="color: var(--accent)">0</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-accent" style="--stat-color: var(--blue)">
           <div class="label">PDFs uploaded</div>
-          <div class="value" id="stat-pdfs">0</div>
+          <div class="value" id="stat-pdfs" style="color: var(--blue)">0</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-accent" style="--stat-color: var(--user-gold)">
           <div class="label">Assignments</div>
-          <div class="value" id="stat-assigns">0</div>
+          <div class="value" id="stat-assigns" style="color: var(--user-gold-text)">0</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-accent" style="--stat-color: var(--red)">
           <div class="label">Total views</div>
-          <div class="value" id="stat-views">0</div>
+          <div class="value" id="stat-views" style="color: var(--red)">0</div>
         </div>
       </div>
 
@@ -658,15 +687,9 @@
               </select>
             </div>
           </div>
-          <div class="grid2">
-            <div class="field">
-              <label class="lbl">Tags <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label>
-              <input type="text" id="pdf-tags" placeholder="e.g. quarterly, report, 2024" />
-            </div>
-            <div class="field">
-              <label class="lbl">Assign to users <span style="font-weight:400;color:var(--text3)">(hold Ctrl/Cmd for multiple)</span></label>
-              <select id="pdf-assign" multiple></select>
-            </div>
+          <div class="field">
+            <label class="lbl">Assign to users <span style="font-weight:400;color:var(--text3)">(hold Ctrl/Cmd for multiple)</span></label>
+            <select id="pdf-assign" multiple></select>
           </div>
           <div class="grid2">
             <div class="field">
@@ -1352,6 +1375,7 @@ function doLogin() {
 
   if (id === state.adminCreds.id && pass === state.adminCreds.pass) {
     curUser = null;
+    try { sessionStorage.setItem('docportal_session', JSON.stringify({ type: 'admin' })); } catch(e) {}
     logAudit('ADMIN_LOGIN', { method: 'manual' });
     renderAdmin();
     show('s-admin');
@@ -1363,9 +1387,37 @@ function doLogin() {
   if (!u.active) { showAlert('li-err','This account is inactive. Please contact your administrator.','err'); return; }
 
   curUser = u;
+  try { sessionStorage.setItem('docportal_session', JSON.stringify({ type: 'user', userId: u.userId })); } catch(e) {}
   logAudit('USER_LOGIN', { userId: u.userId, username: u.username });
   renderUserPortal(u);
   show('s-user');
+}
+
+// Restore a session after a page refresh (sessionStorage survives reload,
+// but is cleared when the tab/browser is actually closed).
+function restoreSession() {
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem('docportal_session') || 'null'); } catch(e) {}
+  if (!saved) return false;
+
+  if (saved.type === 'admin') {
+    curUser = null;
+    renderAdmin();
+    show('s-admin');
+    return true;
+  }
+  if (saved.type === 'user') {
+    const u = state.users.find(x => x.userId === saved.userId);
+    if (u && u.active) {
+      curUser = u;
+      renderUserPortal(u);
+      show('s-user');
+      return true;
+    }
+  }
+  // Saved session no longer valid (e.g. user was deleted/deactivated) — clear it.
+  try { sessionStorage.removeItem('docportal_session'); } catch(e) {}
+  return false;
 }
 
 // Enter key on login
@@ -1376,6 +1428,7 @@ document.addEventListener('keydown', e => {
 function logout() {
   if (curUser) logAudit('USER_LOGOUT', { userId: curUser.userId });
   curUser = null;
+  try { sessionStorage.removeItem('docportal_session'); } catch(e) {}
   $('li-id').value = '';
   $('li-pass').value = '';
   $('li-err').style.display = 'none';
@@ -1606,6 +1659,8 @@ function genUser() {
   $('nu-role').value = 'viewer';
   $('nu-dept').value = '';
   $('nu-active').checked = true;
+  $('nu-userid').value = '';
+  $('nu-password').value = '';
   $('cred-id').textContent   = userId;
   $('cred-name').textContent = name;
   $('cred-role').textContent = role;
@@ -1667,7 +1722,7 @@ function setUploadProgress(msg) {
 async function uploadPdf() {
   const title = ($('pdf-title').value || '').trim();
   const category = $('pdf-category').value;
-  const tags = ($('pdf-tags').value || '').trim().split(',').map(t => t.trim()).filter(t => t);
+  const tags = [];
   const filesInput  = Array.from($('pdf-file').files || []);
   const folderInput = Array.from($('folder-upload').files || []);
   const sel   = $('pdf-assign');
@@ -1751,7 +1806,6 @@ async function uploadPdf() {
 
     $('pdf-title').value = '';
     $('pdf-category').value = 'general';
-    $('pdf-tags').value = '';
     $('pdf-file').value  = '';
     $('folder-upload').value = '';
     $('pdf-file-preview').innerHTML = '';
@@ -1864,12 +1918,29 @@ function renderUserPortal(u) {
             <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v9M4.5 7l3 3 3-3M2 10v2.5A1.5 1.5 0 003.5 14h8a1.5 1.5 0 001.5-1.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Download
           </a>
+          <button class="btn btn-danger btn-sm" onclick="removeDocFromMyView(${p.id})" title="Remove from your list">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2h3v1.5M4 3.5l.7 8h4.6l.7-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
       </div>
     </div>`;
   }).join('');
 
   renderUserSentList();
+}
+
+// Lets a user remove a document admin sent them from THEIR OWN view only —
+// it stays assigned to any other users it was sent to, and stays in admin's
+// master document list. This just unassigns the current user from it.
+function removeDocFromMyView(pdfId) {
+  if (!curUser) return;
+  if (!confirm('Remove this document from your list?\n\nIt will no longer appear here, but you can ask your administrator to re-send it if needed.')) return;
+  const p = state.pdfs.find(x => x.id === pdfId);
+  if (!p) return;
+  p.assignedTo = p.assignedTo.filter(id => id !== curUser.userId);
+  saveState();
+  logAudit('USER_REMOVED_DOC', { userId: curUser.userId, title: p.title });
+  renderUserPortal(curUser);
 }
 
 function viewPdf(id) {
@@ -2323,6 +2394,7 @@ async function boot() {
     statusEl.style.borderColor = '#FCCF5D';
     statusEl.style.color = 'var(--amber)';
     statusEl.textContent = '⚠️ Running in local-only mode — data stays in this browser. Add Supabase credentials to enable shared access across devices.';
+    restoreSession();
     return;
   }
 
@@ -2348,6 +2420,7 @@ async function boot() {
     statusEl.style.color = 'var(--red-text)';
     statusEl.textContent = '⚠️ Could not reach the shared workspace — ' + (lastCloudError || 'unknown error') + '. Showing locally cached data only.';
   }
+  restoreSession();
 }
 
 boot();
