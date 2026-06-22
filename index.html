@@ -1860,10 +1860,10 @@ function renderUserPortal(u) {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="6" ry="4" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="1.8" fill="currentColor"/></svg>
             View
           </button>
-          ${p.access === 'download' ? `<a class="btn btn-primary btn-sm" href="${p.data}" download="${esc(p.filename)}" onclick="downloadPdf(${p.id})">
+          <a class="btn btn-primary btn-sm" href="${p.data}" download="${esc(p.filename)}" onclick="downloadPdf(${p.id})">
             <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v9M4.5 7l3 3 3-3M2 10v2.5A1.5 1.5 0 003.5 14h8a1.5 1.5 0 001.5-1.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Download
-          </a>` : ''}
+          </a>
         </div>
       </div>
     </div>`;
@@ -1900,13 +1900,9 @@ function viewPdf(id) {
     fallback.innerHTML = `<div class="empty-icon">📦</div><p>This file type can't be previewed in the browser.<br>Use Download to open it on your device.</p>`;
   }
 
-  if (p.access === 'download') {
-    $('viewer-dl').href = p.data;
-    $('viewer-dl').download = p.filename;
-    $('viewer-dl').style.display = 'inline-flex';
-  } else {
-    $('viewer-dl').style.display = 'none';
-  }
+  $('viewer-dl').href = p.data;
+  $('viewer-dl').download = p.filename;
+  $('viewer-dl').style.display = 'inline-flex';
   showEl('viewer-wrap', true);
   p.views = (p.views || 0) + 1;
   saveState();
@@ -1989,7 +1985,22 @@ function renderUserSentList() {
         <div style="color:var(--text2)">${esc(u.filename)} · ${u.size} · ${fmtDate(u.ts)}</div>
       </div>
       <span style="color:var(--accent);font-size:11px;font-weight:500">Sent ✓</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteOwnSentFile(${u.id})" title="Delete">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2h3v1.5M4 3.5l.7 8h4.6l.7-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>`).join('');
+}
+
+async function deleteOwnSentFile(id) {
+  if (!confirm('Delete this file you sent to admin? This cannot be undone.')) return;
+  const u = state.userUploads.find(x => x.id === id);
+  if (!u) return;
+  if (cloudReady && u.storagePath) {
+    try { await sb.storage.from(BUCKET).remove([u.storagePath]); } catch(e) { console.error('Cloud file delete failed', e); }
+  }
+  state.userUploads = state.userUploads.filter(x => x.id !== id);
+  saveState();
+  renderUserSentList();
 }
 
 // ════════════════════════════════
