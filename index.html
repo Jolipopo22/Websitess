@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1477,7 +1477,7 @@ function renderPdfList() {
         </div>
       </div>
       <div class="list-right">
-        <button class="btn btn-danger btn-sm" onclick="deletePdf(${i})" title="Delete">
+        <button class="btn btn-danger btn-sm" onclick="deletePdf(${p.id})" title="Delete">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2h3v1.5M4 3.5l.7 8h4.6l.7-8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Delete
         </button>
@@ -1772,14 +1772,16 @@ async function uploadPdf() {
   }
 }
 
-async function deletePdf(i) {
-  const p = state.pdfs[i];
+async function deletePdf(id) {
+  const idx = state.pdfs.findIndex(x => x.id === id);
+  if (idx === -1) { showAlert('pdf-err', 'That document no longer exists — the list may have just updated. Please try again.', 'err'); renderAdmin(); return; }
+  const p = state.pdfs[idx];
   if (!confirm('Delete "' + p.title + '"?\n\nThis will remove it from all users.')) return;
   logAudit('PDF_DELETE', { title: p.title });
   if (cloudReady && p.storagePath) {
     try { await sb.storage.from(BUCKET).remove([p.storagePath]); } catch(e) { console.error('Cloud file delete failed', e); }
   }
-  state.pdfs.splice(i, 1);
+  state.pdfs.splice(idx, 1);
   saveState();
   renderAdmin();
 }
@@ -1867,7 +1869,6 @@ function renderUserPortal(u) {
     </div>`;
   }).join('');
 
-  closeViewer();
   renderUserSentList();
 }
 
