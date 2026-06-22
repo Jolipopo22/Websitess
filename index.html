@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -444,10 +444,15 @@
     overflow: hidden;
     background: #525659;
     margin-bottom: 1.5rem;
+    min-height: 540px;
   }
   .viewer-frame-wrap iframe {
     display: block; width: 100%; height: 540px; border: none;
   }
+  .viewer-frame-wrap #viewer-fallback {
+    height: 540px; color: #fff; padding: 2rem;
+  }
+  .viewer-frame-wrap #viewer-fallback .empty-icon { font-size: 48px; margin-bottom: 1rem; }
 
   /* ── Section header ── */
   .section-hd {
@@ -1233,11 +1238,31 @@ function rerenderCurrentScreen() {
 // ── Cloud file storage (Supabase Storage) ──
 // Falls back to embedding the file as a data URL when Supabase isn't configured,
 // so the app still works locally without any setup.
+const MIME_BY_EXT = {
+  pdf: 'application/pdf',
+  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp',
+  txt: 'text/plain', csv: 'text/csv',
+  doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  zip: 'application/zip'
+};
+
+function resolveContentType(file) {
+  // Browsers sometimes fail to report file.type (depends on OS file-association
+  // metadata), which previously caused files to be stored as generic
+  // application/octet-stream — and browsers refuse to render that as a PDF/image
+  // inline, producing a blank viewer even though the file loads fine (200 OK).
+  // Extension-based lookup is reliable and doesn't depend on the browser's guess.
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  return MIME_BY_EXT[ext] || file.type || 'application/octet-stream';
+}
+
 async function uploadFileToCloud(file, pathPrefix) {
   if (!cloudReady) return fileToDataUrl(file);
   const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
   const path = pathPrefix + '/' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '_' + safeName;
-  const { error } = await sb.storage.from(BUCKET).upload(path, file, { contentType: file.type || 'application/octet-stream' });
+  const { error } = await sb.storage.from(BUCKET).upload(path, file, { contentType: resolveContentType(file) });
   if (error) throw error;
   const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
   return { url: data.publicUrl, storagePath: path };
@@ -1395,17 +1420,30 @@ function renderAdmin() {
 
 function renderAssignSelect() {
   const sel = $('pdf-assign');
+  const activeUsers = state.users.filter(u => u.active);
+
+  // Build a signature of the current option set so we can skip rebuilding
+  // (and thus skip wiping the user's in-progress selection) when nothing changed.
+  const signature = activeUsers.map(u => u.userId).join(',');
+  if (sel.dataset.signature === signature) return;
+
+  // Preserve whatever is currently selected before we rebuild.
+  const previouslySelected = new Set(Array.from(sel.selectedOptions).map(o => o.value));
+
   sel.innerHTML = '';
-  if (!state.users.length) {
+  if (!activeUsers.length) {
     sel.innerHTML = '<option disabled>No users yet — create users first</option>';
+    sel.dataset.signature = signature;
     return;
   }
-  state.users.filter(u => u.active).forEach(u => {
+  activeUsers.forEach(u => {
     const o = document.createElement('option');
     o.value = u.userId;
     o.textContent = u.username + '  (' + u.userId + ')';
+    if (previouslySelected.has(u.userId)) o.selected = true;
     sel.appendChild(o);
   });
+  sel.dataset.signature = signature;
 }
 
 function renderPdfList() {
